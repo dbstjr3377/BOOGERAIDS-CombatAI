@@ -50,7 +50,8 @@ public final class Hud {
     private final TextDisplay frameOverlay, vignette;
     private final TextDisplay timerLabel, timerGhost, timerText;
     private final TextDisplay subject, stage;
-    private final TextDisplay title, subtitle;
+    private final TextDisplay title, subtitle, hint;
+    private int hintTicks;
     private final TextDisplay bossName, bossFrame, bossTrail, bossFill;
     private final Holder[] holders = new Holder[2];
 
@@ -85,6 +86,7 @@ public final class Hud {
         stage = text(at);
         title = text(at);
         subtitle = text(at);
+        hint = text(at);
         bossName = text(at);
         bossFrame = text(at);
         bossTrail = text(at);
@@ -400,6 +402,16 @@ public final class Hud {
 
     private int titlePopPending;
 
+    /** 화면 하단 중앙 안내 문구 (튜토리얼 등). */
+    public void showHint(Component c, int ticks) {
+        hintTicks = ticks;
+        hint.text(Component.empty().append(Fonts.lab("▶ ", 0x00E5FF)).append(c));
+        hint.setTextOpacity((byte) -1);
+        hint.setBackgroundColor(Color.fromARGB(170, 6, 10, 16));
+        hint.setInterpolationDuration(0);
+        anchorText(hint, 0, -0.66, 0, 0, 0, 1, 0.04, 0.99);
+    }
+
     public void hideTitle() {
         titleTicks = 0;
         title.text(Component.empty());
@@ -492,6 +504,20 @@ public final class Hud {
                     byte op = (byte) (int) Math.round(f * 255);
                     title.setTextOpacity(op);
                     subtitle.setTextOpacity(op);
+                }
+            }
+        }
+
+        // 안내 문구 페이드
+        if (hintTicks > 0) {
+            hintTicks--;
+            if (hintTicks < 12) {
+                if (hintTicks < 2) {
+                    hint.text(Component.empty());
+                    hint.setBackgroundColor(Color.fromARGB(0, 0, 0, 0));
+                } else {
+                    hint.setTextOpacity((byte) (int) Math.round(hintTicks / 12.0 * 255));
+                    hint.setBackgroundColor(Color.fromARGB((int) (170 * hintTicks / 12.0), 6, 10, 16));
                 }
             }
         }

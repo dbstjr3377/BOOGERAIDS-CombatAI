@@ -36,7 +36,7 @@ settings:
     ground-accel: 0.07
     ground-decel: 0.11
     air-accel: 0.04
-    jump-velocity: 0.52
+    jump-velocity: 0.62
     jump-cut: 0.5          # 점프 키를 일찍 떼면 상승 속도에 곱함 (가변 점프)
     coyote-ticks: 3        # 발판에서 떨어진 직후에도 점프 허용
     jump-buffer-ticks: 4   # 착지 직전 입력한 점프를 기억
@@ -58,60 +58,20 @@ settings:
 
 # ------------------------------------------------------------
 #  챕터 / 스테이지
+#  챕터 1 은 내장 레벨로 자동 생성된다:
+#    빈(평지/보이드) 월드에서 원하는 위치에 서서  /bc build chapter1
+#    → 스테이지 6개 + 보스 아레나를 짓고 아래 chapters.c1 을 자동으로 채운다.
+#
 #  facing: 카메라가 바라보는 방향 yaw (90의 배수). 180 이면 북쪽(-Z)을 바라보고 +X 가 화면 오른쪽.
 #  objects.type:
 #    ability  - 특수능력 캡슐. ability: DASH|BOOST|BLINK|SHOCKWAVE|PLASMA, slot: LEFT|RIGHT|AUTO
+#    saw      - 회전 톱날. pos(고정) / path + speed + loop(경로) / pos + radius + orbit(공전), size, phase, track
+#    spikes   - 삼각 가시. pos(첫 칸 블록 좌표), length, dir: UP|DOWN|LEFT|RIGHT (뾰족한 방향)
+#    spring   - 스프링. pos(블록 좌표), power, dir: UP|LEFT|RIGHT (튕기는 방향)
+#    hint     - min~max 영역에 처음 들어가면 화면 하단에 안내 문구 (text)
 #    switch   - 닿으면 target 좌표에 레드스톤 블록 설치 (문/피스톤 연결용, 재시작 시 원복)
 #    laser    - min~max 박스의 주기형 레이저. period(틱), on(틱), offset(틱)
 #    jumppad  - 닿으면 power 만큼 튀어오름
 #    sign     - 공중에 떠있는 안내 문구 (text)
 # ------------------------------------------------------------
-chapters:
-  c1:
-    name: "CHAPTER 01 // 격리 구역"
-    stages:
-      s1:
-        name: "STAGE 1-1  초기 반응 테스트"
-        time: 60
-        facing: 180
-        spawn: [0.5, 100.0, 0.5]
-        goal-min: [60.0, 99.0, -1.0]
-        goal-max: [62.0, 103.0, 2.0]
-        kill-y: 80
-        objects:
-          - {type: sign, pos: [3.5, 102.5, 0.5], text: "[A] [D] 이동    [SPACE] 점프"}
-          - {type: ability, ability: DASH, slot: LEFT, pos: [20.5, 100.5, 0.5]}
-          - {type: sign, pos: [20.5, 103.0, 0.5], text: "캡슐을 획득하면 마우스 클릭으로 능력 사용"}
-      s2:
-        name: "STAGE 1-2  레이저 회랑"
-        time: 60
-        facing: 180
-        spawn: [100.5, 100.0, 0.5]
-        goal-min: [170.0, 99.0, -1.0]
-        goal-max: [172.0, 103.0, 2.0]
-        kill-y: 80
-        # 카메라 개별 설정 예시 (2.5D 연출)
-        camera:
-          yaw-offset: 14.0
-          distance: 12.0
-        objects:
-          - {type: laser, min: [120.0, 100.0, 0.0], max: [120.3, 103.0, 1.0], period: 60, on: 30, offset: 0}
-          - {type: jumppad, pos: [130.5, 100.0, 0.5], power: 1.05}
-          - {type: switch, pos: [140.5, 100.0, 0.5], target: [140.0, 95.0, 3.0]}
-    boss:
-      name: "SPECIMEN-00 // 관리 AI 감시체"
-      facing: 180
-      spawn: [200.5, 100.0, 0.5]
-      kill-y: 80
-      boss:
-        name: "SENTINEL-00"
-        health: 60
-        item: OBSERVER
-        scale: 3.0
-        pos: [215.5, 104.0, 0.5]
-        arena-min: [196.0, 100.0, 0.0]
-        arena-max: [234.0, 112.0, 1.0]
-        idle-ticks: 50
-      objects:
-        - {type: ability, ability: PLASMA, slot: LEFT, pos: [204.5, 100.5, 0.5]}
-        - {type: ability, ability: BOOST, slot: RIGHT, pos: [226.5, 100.5, 0.5]}
+chapters: {}

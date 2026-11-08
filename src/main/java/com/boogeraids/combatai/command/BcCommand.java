@@ -127,6 +127,11 @@ public final class BcCommand implements TabExecutor {
                 if (d == null || d.spawn == null) { err(s, "스테이지 또는 스폰이 없습니다."); return true; }
                 p.teleport(d.spawn.toLocation(p.getWorld()));
             }
+            case "build" -> {
+                if (!(s instanceof Player p) || a.length < 2) { err(s, "/bc build <레벨파일> (예: chapter1) - 지금 서 있는 블록이 1번 스테이지 왼쪽 아래 기준점"); return true; }
+                if (game().isRunning()) { err(s, "게임 중에는 건설할 수 없습니다."); return true; }
+                new com.boogeraids.combatai.stage.LevelBuilder(plugin).build(s, a[1], p.getLocation().getBlock().getLocation());
+            }
             case "chapter" -> chapterCmd(s, a);
             case "stage" -> stageCmd(s, a);
             case "set" -> setCmd(s, a);
@@ -143,6 +148,7 @@ public final class BcCommand implements TabExecutor {
                 "§f/bc stop | skip | kill | status | reload",
                 "§f/bc join | leave | pack",
                 "§3── 편집 ──",
+                "§f/bc build <레벨> §7- 내장 레벨(chapter1)을 현재 위치에 건설하고 config 에 등록 (빈 월드 권장)",
                 "§f/bc list §7- 챕터/스테이지 목록",
                 "§f/bc chapter add <id> <이름>",
                 "§f/bc stage add <챕터> <id> [시간(초)] [이름]   §7보스: §f/bc stage boss <챕터> [이름]",
@@ -369,6 +375,27 @@ public final class BcCommand implements TabExecutor {
                 o.onTicks = a.length > 6 ? Integer.parseInt(a[6]) : 30;
                 o.offset = a.length > 7 ? Integer.parseInt(a[7]) : 0;
             }
+            case "saw" -> {
+                o.type = StageObject.Type.SAW;
+                o.pos = new Vec(here.x(), loc.getY() + 1.0, here.z());
+                o.size = a.length > 5 ? Double.parseDouble(a[5]) : 1.6;
+                if (a.length > 7) {          // saw <크기> <반지름> <각속도>  → 공전
+                    o.radius = Double.parseDouble(a[6]);
+                    o.orbit = Double.parseDouble(a[7]);
+                }
+            }
+            case "spikes" -> {
+                o.type = StageObject.Type.SPIKES;
+                o.pos = new Vec(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+                o.dir = a.length > 5 ? StageObject.Dir.valueOf(a[5].toUpperCase()) : StageObject.Dir.UP;
+                o.length = a.length > 6 ? Integer.parseInt(a[6]) : 1;
+            }
+            case "spring" -> {
+                o.type = StageObject.Type.SPRING;
+                o.pos = new Vec(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+                o.power = a.length > 5 ? Double.parseDouble(a[5]) : 1.0;
+                o.dir = a.length > 6 ? StageObject.Dir.valueOf(a[6].toUpperCase()) : StageObject.Dir.UP;
+            }
             default -> {
                 err(s, "알 수 없는 타입");
                 return;
@@ -387,13 +414,14 @@ public final class BcCommand implements TabExecutor {
         if (a.length == 1) {
             out.addAll(List.of("help", "join", "leave", "status", "queue", "pack"));
             if (s.hasPermission("boogeraids.admin")) {
-                out.addAll(List.of("start", "stop", "skip", "kill", "reload", "list", "pos1", "pos2", "tp", "chapter", "stage", "set", "obj"));
+                out.addAll(List.of("start", "stop", "skip", "kill", "reload", "list", "build", "pos1", "pos2", "tp", "chapter", "stage", "set", "obj"));
             }
         } else if (s.hasPermission("boogeraids.admin")) {
             String sub = a[0].toLowerCase();
             List<String> chapters = plugin.gameConfig().chapters.stream().map(c -> c.id).toList();
             if (a.length == 2 && List.of("start", "tp", "set", "obj").contains(sub)) out.addAll(chapters);
             else if (a.length == 2 && sub.equals("chapter")) out.add("add");
+            else if (a.length == 2 && sub.equals("build")) out.add("chapter1");
             else if (a.length == 2 && sub.equals("stage")) out.addAll(List.of("add", "boss"));
             else if (a.length == 3 && sub.equals("stage")) out.addAll(chapters);
             else if (a.length == 3 && List.of("start", "tp", "set", "obj").contains(sub)) {
@@ -406,7 +434,7 @@ public final class BcCommand implements TabExecutor {
             } else if (a.length == 4 && sub.equals("obj")) {
                 out.addAll(List.of("add", "list", "remove"));
             } else if (a.length == 5 && sub.equals("obj") && a[3].equalsIgnoreCase("add")) {
-                out.addAll(List.of("ability", "sign", "jumppad", "switch", "laser"));
+                out.addAll(List.of("ability", "sign", "jumppad", "switch", "laser", "saw", "spikes", "spring"));
             } else if (a.length == 6 && sub.equals("obj") && a[4].equalsIgnoreCase("ability")) {
                 for (Ability ab : Ability.values()) out.add(ab.name());
             } else if (a.length == 7 && sub.equals("obj") && a[4].equalsIgnoreCase("ability")) {

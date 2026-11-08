@@ -7,7 +7,7 @@ public final class MovementSettings {
     public double groundAccel = 0.07;
     public double groundDecel = 0.11;
     public double airAccel = 0.04;
-    public double jumpVelocity = 0.52;
+    public double jumpVelocity = 0.62;
     public double jumpCut = 0.5;
     public int coyoteTicks = 3;
     public int jumpBufferTicks = 4;

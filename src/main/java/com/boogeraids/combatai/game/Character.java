@@ -29,6 +29,7 @@ public final class Character {
     public final AbilitySlotState[] slots = {new AbilitySlotState(), new AbilitySlotState()};
 
     private double vu;            // 평면 수평 속도 (내부 상태)
+    private double appliedVu;     // 지난 틱에 실제로 적용한 수평 속도 (벽 판정용)
     private int facing = 1;
     private int airTicks;
     private int jumpBuffer;
@@ -43,6 +44,7 @@ public final class Character {
     private double dashSpeed;
 
     private boolean frozen;
+    private int controlLock;      // 옆 스프링 발사 후 공중 제어 감소
     private boolean dead;
 
     public Character(PlaneFrame frame, MovementSettings mv) {
@@ -65,6 +67,7 @@ public final class Character {
             m.setCanPickupItems(false);
         }));
         vu = 0;
+        appliedVu = 0;
         facing = 1;
         dashTicks = 0;
         airTicks = 0;
@@ -149,6 +152,7 @@ public final class Character {
 
         if (frozen) {
             vu = 0;
+            appliedVu = 0;
             body.setVelocity(frame.velocity(0, Math.min(vy, 0)).add(depthCorrection(loc)));
             lastU = u;
             lastY = loc.getY();
@@ -156,7 +160,7 @@ public final class Character {
         }
 
         // 벽에 막혔으면 내부 속도도 끊는다
-        if (Math.abs(vu) > 0.05 && Math.abs(movedU) < Math.abs(vu) * 0.25 && dashTicks == 0) vu = movedU;
+        if (Math.abs(appliedVu) > 0.05 && Math.abs(movedU) < Math.abs(appliedVu) * 0.25 && dashTicks == 0) vu = movedU;
 
         int dir = (in.right ? 1 : 0) - (in.left ? 1 : 0);
         if (dir != 0 && dashTicks == 0) facing = dir;
@@ -188,6 +192,11 @@ public final class Character {
             double accel;
             if (ground) accel = dir == 0 || Math.signum(target) != Math.signum(vu) ? mv.groundDecel : mv.groundAccel;
             else accel = mv.airAccel;
+            if (controlLock > 0) {
+                controlLock--;
+                accel *= 0.15;
+                if (ground && controlLock < 8) controlLock = 0;
+            }
             if (vu < target) vu = Math.min(target, vu + accel);
             else if (vu > target) vu = Math.max(target, vu - accel);
 
@@ -206,6 +215,7 @@ public final class Character {
         }
 
         body.setVelocity(frame.velocity(vu, vy).add(depthCorrection(loc)));
+        appliedVu = vu;
 
         // 바라보는 방향
         float yaw = frame.yawFacing(facing);
@@ -246,6 +256,18 @@ public final class Character {
         usedBoost = false;
         Vector v = body.getVelocity();
         body.setVelocity(new Vector(v.getX(), power, v.getZ()));
+    }
+
+    /** 옆 스프링: 수평 속도 vu, 수직 vy 로 발사하고 lock 틱 동안 공중 제어를 약하게. */
+    public void launch(double vu, double vy, int lock) {
+        stopDash();
+        this.vu = vu;
+        this.facing = vu >= 0 ? 1 : -1;
+        jumping = false;
+        usedBoost = false;
+        controlLock = lock;
+        appliedVu = vu;
+        body.setVelocity(frame.velocity(vu, vy));
     }
 
     public void teleport(Location l) {
