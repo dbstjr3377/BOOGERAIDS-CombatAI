@@ -1,0 +1,15 @@
+name: BOOGERAIDS-CombatAI
+version: '${version}'
+main: com.boogeraids.combatai.BoogerAIDS
+api-version: '26.3'
+description: 2.5D lab platformer minigame - one character, many test subjects.
+authors: [dbstjr3377]
+commands:
+  boogeraids:
+    description: BOOGERAIDS 게임 관리 명령어
+    aliases: [bc]
+    usage: /bc help
+permissions:
+  boogeraids.admin:
+    description: 게임 시작/정지 및 스테이지 편집
+    default: op

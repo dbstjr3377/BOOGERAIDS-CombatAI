@@ -1,0 +1,117 @@
+# ============================================================
+#  BOOGERAIDS // CombatAI  -  설정 파일
+#  좌표는 [x, y, z] 형식. 대부분은 게임 안에서 /bc set ... 명령으로 찍을 수 있다.
+# ============================================================
+
+settings:
+  world: world
+
+  # 연출 시간 (틱, 20틱 = 1초)
+  intro-ticks: 70          # 스테이지 시작 타이틀 카드
+  death-ticks: 55          # 사망 연출 후 다음 플레이어로 교대
+  clear-ticks: 70          # 스테이지 클리어 연출
+  victory-ticks: 220       # 전체 클리어 후 게임 종료까지
+
+  # 보스 스테이지에서 사망하면 보스 체력을 다시 채울지
+  boss-reset-on-death: true
+
+  camera:
+    distance: 13.0         # 캐릭터 평면에서 카메라까지 거리
+    height: 1.6            # 캐릭터 기준 시점 높이
+    pitch: 6.0             # 내려다보는 각도
+    yaw-offset: 0.0        # 0 이면 순수 2D, 값을 주면 비스듬한 2.5D 시점
+    lookahead: 2.6         # 진행 방향으로 화면을 미리 보여주는 거리
+    follow-speed: 0.14     # 수평 이징 (0~1, 클수록 빠르게 따라감)
+    vertical-follow-speed: 0.09
+    deadzone-y: 1.2        # 이 높이 안의 수직 이동은 카메라가 무시 (점프 시 흔들림 방지)
+    lookahead-speed: 0.06
+
+  hud:
+    distance: 1.0          # 카메라 앞 HUD 평면 거리 (블록)
+    fov: 70.0              # 플레이어 FOV 가정값 (기본 '보통' = 70)
+    aspect: 1.7778         # 화면비 가정값 (16:9)
+
+  movement:
+    walk-speed: 0.27       # 블록/틱
+    ground-accel: 0.07
+    ground-decel: 0.11
+    air-accel: 0.04
+    jump-velocity: 0.52
+    jump-cut: 0.5          # 점프 키를 일찍 떼면 상승 속도에 곱함 (가변 점프)
+    coyote-ticks: 3        # 발판에서 떨어진 직후에도 점프 허용
+    jump-buffer-ticks: 4   # 착지 직전 입력한 점프를 기억
+
+  # 닿으면 즉사하는 블록
+  lethal-blocks: [LAVA, MAGMA_BLOCK, FIRE, SOUL_FIRE, CAMPFIRE, SOUL_CAMPFIRE, WITHER_ROSE, SWEET_BERRY_BUSH, POWDER_SNOW, CACTUS]
+  # 충격파/플라즈마로 부술 수 있는 블록 (스테이지 재시작 시 복구)
+  breakable-blocks: [CRACKED_STONE_BRICKS, CRACKED_DEEPSLATE_BRICKS, CRACKED_DEEPSLATE_TILES, TINTED_GLASS, INFESTED_STONE]
+
+  resource-pack:
+    enabled: true
+    port: 8163
+    # 플레이어가 접속할 수 있는 이 서버의 외부 주소 (예: play.example.com 또는 공인 IP)
+    public-host: "localhost"
+    # 직접 호스팅한다면 URL을 적으면 내장 서버 대신 사용 (sha1은 자동 계산 안 됨 → 직접 기입)
+    external-url: ""
+    external-sha1: ""
+    required: true
+
+# ------------------------------------------------------------
+#  챕터 / 스테이지
+#  facing: 카메라가 바라보는 방향 yaw (90의 배수). 180 이면 북쪽(-Z)을 바라보고 +X 가 화면 오른쪽.
+#  objects.type:
+#    ability  - 특수능력 캡슐. ability: DASH|BOOST|BLINK|SHOCKWAVE|PLASMA, slot: LEFT|RIGHT|AUTO
+#    switch   - 닿으면 target 좌표에 레드스톤 블록 설치 (문/피스톤 연결용, 재시작 시 원복)
+#    laser    - min~max 박스의 주기형 레이저. period(틱), on(틱), offset(틱)
+#    jumppad  - 닿으면 power 만큼 튀어오름
+#    sign     - 공중에 떠있는 안내 문구 (text)
+# ------------------------------------------------------------
+chapters:
+  c1:
+    name: "CHAPTER 01 // 격리 구역"
+    stages:
+      s1:
+        name: "STAGE 1-1  초기 반응 테스트"
+        time: 60
+        facing: 180
+        spawn: [0.5, 100.0, 0.5]
+        goal-min: [60.0, 99.0, -1.0]
+        goal-max: [62.0, 103.0, 2.0]
+        kill-y: 80
+        objects:
+          - {type: sign, pos: [3.5, 102.5, 0.5], text: "[A] [D] 이동    [SPACE] 점프"}
+          - {type: ability, ability: DASH, slot: LEFT, pos: [20.5, 100.5, 0.5]}
+          - {type: sign, pos: [20.5, 103.0, 0.5], text: "캡슐을 획득하면 마우스 클릭으로 능력 사용"}
+      s2:
+        name: "STAGE 1-2  레이저 회랑"
+        time: 60
+        facing: 180
+        spawn: [100.5, 100.0, 0.5]
+        goal-min: [170.0, 99.0, -1.0]
+        goal-max: [172.0, 103.0, 2.0]
+        kill-y: 80
+        # 카메라 개별 설정 예시 (2.5D 연출)
+        camera:
+          yaw-offset: 14.0
+          distance: 12.0
+        objects:
+          - {type: laser, min: [120.0, 100.0, 0.0], max: [120.3, 103.0, 1.0], period: 60, on: 30, offset: 0}
+          - {type: jumppad, pos: [130.5, 100.0, 0.5], power: 1.05}
+          - {type: switch, pos: [140.5, 100.0, 0.5], target: [140.0, 95.0, 3.0]}
+    boss:
+      name: "SPECIMEN-00 // 관리 AI 감시체"
+      facing: 180
+      spawn: [200.5, 100.0, 0.5]
+      kill-y: 80
+      boss:
+        name: "SENTINEL-00"
+        health: 60
+        item: OBSERVER
+        scale: 3.0
+        pos: [215.5, 104.0, 0.5]
+        arena-min: [196.0, 100.0, 0.0]
+        arena-max: [234.0, 112.0, 1.0]
+        idle-ticks: 50
+      objects:
+        - {type: ability, ability: PLASMA, slot: LEFT, pos: [204.5, 100.5, 0.5]}
+        - {type: ability, ability: BOOST, slot: RIGHT, pos: [226.5, 100.5, 0.5]}

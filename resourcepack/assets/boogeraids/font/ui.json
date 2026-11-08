@@ -1,0 +1,85 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "boogeraids:ui/holder.png",
+      "ascent": 18,
+      "height": 32,
+      "chars": [
+        "\ue000"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "boogeraids:ui/cooldown.png",
+      "ascent": 18,
+      "height": 32,
+      "chars": [
+        "\ue001"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "boogeraids:ui/white.png",
+      "ascent": 6,
+      "height": 8,
+      "chars": [
+        "\ue002"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "boogeraids:ui/vignette.png",
+      "ascent": 74,
+      "height": 144,
+      "chars": [
+        "\ue003"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "boogeraids:ui/hudframe.png",
+      "ascent": 74,
+      "height": 144,
+      "chars": [
+        "\ue004"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "boogeraids:ui/bossframe.png",
+      "ascent": 6,
+      "height": 8,
+      "chars": [
+        "\ue005"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "boogeraids:ui/mouse_l.png",
+      "ascent": 8,
+      "height": 12,
+      "chars": [
+        "\ue006"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "boogeraids:ui/mouse_r.png",
+      "ascent": 8,
+      "height": 12,
+      "chars": [
+        "\ue007"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "boogeraids:ui/warn.png",
+      "ascent": 10,
+      "height": 16,
+      "chars": [
+        "\ue008"
+      ]
+    }
+  ]
+}
