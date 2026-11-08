@@ -200,11 +200,11 @@ public final class Hud {
 
         // 타이머
         timerLabel.text(Fonts.lab("◢ TIME LIMIT ◣", 0xFF5A5A));
-        anchorText(timerLabel, 0, 0.955, 0, 1, Fonts.labWidth("◢ TIME LIMIT ◣"), 1, 0.030, 1.0);
+        anchorText(timerLabel, 0, 0.97, 0, 1, Fonts.labWidth("◢ TIME LIMIT ◣"), 1, 0.024, 1.0);
         timerGhost.text(Fonts.digital("88:88.88", 0x3A0808));
         timerGhost.setBackgroundColor(Color.fromARGB(150, 12, 2, 4));
-        anchorText(timerGhost, 0, 0.905, 0, 1, Fonts.digitalWidth("88:88.88"), 1, 0.085, 1.004);
-        anchorText(timerText, 0, 0.905, 0, 1, Fonts.digitalWidth("88:88.88"), 1, 0.085, 1.0);
+        anchorText(timerGhost, 0, 0.885, 0, 1, Fonts.digitalWidth("88:88.88"), 1, 0.05, 1.004);
+        anchorText(timerText, 0, 0.885, 0, 1, Fonts.digitalWidth("88:88.88"), 1, 0.05, 1.0);
 
         // 스킬 홀더 위치 (우측 하단, 왼쪽=L 슬롯, 오른쪽=R 슬롯)
         for (int i = 0; i < 2; i++) layoutHolder(i, holders[i], 1.0);
@@ -236,7 +236,7 @@ public final class Hud {
 
         // 입력키 (좌하단 모서리 마우스 아이콘)
         double sKey = size * 0.36 / (12 * PX);
-        placeGlyph(h.key, cx - size / 2 + size * 0.04, cy - size / 2 + size * 0.06, depth * 0.98, sKey, sKey);
+        placeGlyph(h.key, cx - size / 2 + size * 0.10, cy - size / 2 + size * 0.16, depth * 0.98, sKey, sKey);
 
         // 능력 이름 (홀더 위)
         double sName = lineScale(0.026, depth);
@@ -393,8 +393,8 @@ public final class Hud {
         // 팝 인: 크게 시작 → 보간으로 원래 크기
         title.setInterpolationDuration(0);
         subtitle.setInterpolationDuration(0);
-        anchorText(title, 0, 0.22, 0, 0, 0, 1, 0.11 * 1.35, 0.99);
-        anchorText(subtitle, 0, 0.07, 0, 0, 0, 1, 0.045, 0.99);
+        anchorText(title, 0, 0.22, 0, 0, 0, 1, 0.07 * 1.3, 0.99);
+        anchorText(subtitle, 0, 0.10, 0, 0, 0, 1, 0.034, 0.99);
         titlePopPending = 2;
     }
 
@@ -423,7 +423,7 @@ public final class Hud {
             return;
         }
         bossName.text(Fonts.lab("◆ " + name + " ◆", 0xFF5A6E));
-        anchorText(bossName, 0, 0.955, 0, 1, Fonts.labWidth("◆ " + name + " ◆"), 1, 0.034, 1.0);
+        anchorText(bossName, 0, 0.975, 0, 1, Fonts.labWidth("◆ " + name + " ◆"), 1, 0.028, 1.0);
         bossFrame.text(Fonts.ui(Fonts.BOSS_FRAME, 0xFFFFFF));
         bossFill.text(Fonts.ui(Fonts.WHITE, bossColor));
         bossTrail.text(Fonts.ui(Fonts.WHITE, 0xFFFFFF));
@@ -444,7 +444,7 @@ public final class Hud {
         double depth = d(1.0);
         double hw = hs.halfWidth(depth), hh = hs.halfHeight(depth);
         double width = 0.62 * hw;
-        double cy = 0.875 * hh;
+        double cy = 0.85 * hh;
         double s = width / (128 * PX);
         placeGlyph(bossFrame, 0, cy, depth * 1.002, s, s);
         double innerW = width * (1 - 6.0 / 128);
@@ -479,7 +479,7 @@ public final class Hud {
         if (titlePopPending > 0 && --titlePopPending == 0) {
             title.setInterpolationDelay(0);
             title.setInterpolationDuration(7);
-            anchorText(title, 0, 0.22, 0, 0, 0, 1, 0.11, 0.99);
+            anchorText(title, 0, 0.22, 0, 0, 0, 1, 0.07, 0.99);
         }
         if (titleTicks > 0) {
             titleTicks--;
