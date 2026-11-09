@@ -536,6 +536,45 @@ public final class GameManager {
         fx.particle(Particle.END_ROD, where, 25, 0.3, 0.12);
     }
 
+    private int lastPassTick = -1000;
+
+    /**
+     * 통제권 이양 (/너해봐). 캐릭터 위치·속도·능력·남은 시간은 그대로 두고 조작자와 스킨만 바뀐다.
+     * 받는 사람은 대기열 맨 앞, 넘긴 사람은 맨 뒤로 간다.
+     * @return 실패 사유, 성공이면 null
+     */
+    public String passControl(Player from, Player to) {
+        if (!isRunning()) return "진행 중인 게임이 없습니다.";
+        if (!isController(from)) return "통제권을 가진 플레이어만 사용할 수 있습니다.";
+        if (state != GameState.PLAYING && state != GameState.INTRO) return "지금은 통제권을 넘길 수 없습니다.";
+        if (to == null || !to.isOnline()) return "해당 플레이어가 접속해 있지 않습니다.";
+        if (to.getUniqueId().equals(from.getUniqueId())) return "자기 자신에게는 넘길 수 없습니다.";
+        if (!isParticipant(to)) return to.getName() + " 님은 게임 참가자가 아닙니다.";
+        if (globalTick - lastPassTick < 40) return "잠시 후 다시 시도하세요.";
+        lastPassTick = globalTick;
+
+        queue.remove(to.getUniqueId());
+        queue.remove(from.getUniqueId());
+        queue.addFirst(to.getUniqueId());
+        queue.addLast(from.getUniqueId());
+
+        camera.setController(to);
+        camera.addViewer(from);
+        input.reset();
+        if (character != null) character.setProfile(to.getPlayerProfile());
+        refreshSubject();
+
+        hud.showTitle(Fonts.lab("통제권 이양", 0x00E5FF).decorate(TextDecoration.BOLD),
+                Fonts.lab(from.getName() + "  ▸  " + to.getName(), 0xFFFFFF), 20, 10);
+        hud.flash(0x00E5FF, 0.4, 14);
+        fx.sound("block.beacon.power_select", 0.8f, 1.6f);
+        fx.sound("entity.experience_orb.pickup", 0.6f, 1.2f);
+        if (character != null && character.isValid()) {
+            fx.particle(Particle.END_ROD, character.center(), 18, 0.3, 0.05);
+        }
+        return null;
+    }
+
     public void forceClear() {
         if (state == GameState.PLAYING || state == GameState.INTRO) {
             if (state == GameState.INTRO) beginPlay();

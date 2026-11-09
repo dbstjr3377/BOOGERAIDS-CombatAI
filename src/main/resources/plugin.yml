@@ -9,6 +9,10 @@ commands:
     description: BOOGERAIDS 게임 관리 명령어
     aliases: [bc]
     usage: /bc help
+  너해봐:
+    description: 통제권을 다른 참가자에게 넘깁니다 (통제권을 가진 플레이어만 사용)
+    aliases: [pass]
+    usage: /너해봐 <플레이어>
 permissions:
   boogeraids.admin:
     description: 게임 시작/정지 및 스테이지 편집

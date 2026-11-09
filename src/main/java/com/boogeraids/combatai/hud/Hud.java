@@ -49,7 +49,7 @@ public final class Hud {
 
     private final TextDisplay frameOverlay, vignette;
     private final TextDisplay timerLabel, timerGhost, timerText;
-    private final TextDisplay subject, stage;
+    private final TextDisplay subject, stage, usage;
     private final TextDisplay title, subtitle, hint;
     private int hintTicks;
     private final TextDisplay bossName, bossFrame, bossTrail, bossFill;
@@ -84,6 +84,7 @@ public final class Hud {
         timerText = text(at);
         subject = text(at);
         stage = text(at);
+        usage = text(at);
         title = text(at);
         subtitle = text(at);
         hint = text(at);
@@ -314,6 +315,18 @@ public final class Hud {
         double w = 0;
         for (String r : raw) w = Math.max(w, Fonts.labWidth(r) * (r == raw.get(1) ? 1.1 : 1.0));
         anchorText(subject, -0.965, 0.95, -1, 1, w + 4, raw.size(), 0.034, 1.0);
+
+        // 좌측 상단 UI 바로 아래: 통제권 넘기기 사용법
+        String cmd = "/너해봐 <플레이어>";
+        String desc = "  통제권 넘기기";
+        usage.text(Component.empty()
+                .append(Fonts.lab("⌨ ", 0x00E5FF))
+                .append(Fonts.lab(cmd, 0xFFFFFF))
+                .append(Fonts.lab(desc, 0x7F95A3)));
+        usage.setAlignment(TextDisplay.TextAlignment.LEFT);
+        usage.setBackgroundColor(Color.fromARGB(110, 6, 10, 16));
+        double top = 0.95 - raw.size() * 0.034 * 2 - 0.018;   // 한 줄 = 화면 높이의 lineFrac = sy 로 2배
+        anchorText(usage, -0.965, top, -1, 1, Fonts.labWidth("⌨ " + cmd + desc) + 4, 1, 0.026, 1.0);
     }
 
     public void setStage(String chapter, String stageName) {

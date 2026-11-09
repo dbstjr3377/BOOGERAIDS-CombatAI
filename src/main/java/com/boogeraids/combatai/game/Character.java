@@ -77,6 +77,13 @@ public final class Character {
         lastY = l.getY();
     }
 
+    /** 통제권 이양 시 스킨만 교체 (위치·속도·능력은 유지). */
+    public void setProfile(PlayerProfile profile) {
+        if (body != null && body.isValid() && profile != null) {
+            body.setProfile(ResolvableProfile.resolvableProfile(profile));
+        }
+    }
+
     public void remove() {
         if (body != null && body.isValid()) body.remove();
         body = null;

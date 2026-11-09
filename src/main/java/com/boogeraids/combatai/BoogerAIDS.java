@@ -1,6 +1,7 @@
 package com.boogeraids.combatai;
 
 import com.boogeraids.combatai.command.BcCommand;
+import com.boogeraids.combatai.command.PassCommand;
 import com.boogeraids.combatai.config.GameConfig;
 import com.boogeraids.combatai.game.GameManager;
 import com.boogeraids.combatai.listener.GameListener;
@@ -32,6 +33,12 @@ public final class BoogerAIDS extends JavaPlugin {
             BcCommand bc = new BcCommand(this);
             cmd.setExecutor(bc);
             cmd.setTabCompleter(bc);
+        }
+        PluginCommand pass = getCommand("너해봐");
+        if (pass != null) {
+            PassCommand pc = new PassCommand(this);
+            pass.setExecutor(pc);
+            pass.setTabCompleter(pc);
         }
         getLogger().info("BOOGERAIDS // CombatAI 활성화 - 챕터 " + gameConfig.chapters.size() + "개");
     }
