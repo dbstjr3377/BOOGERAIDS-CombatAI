@@ -96,23 +96,25 @@ def vignette():
 
 
 def hudframe():
-    """항상 켜진 연구소 카메라 프레임: 모서리 마커 + 아주 옅은 스캔라인."""
-    w, h = 512, 288
+    """항상 켜진 연구소 카메라 프레임: 모서리 마커 + 아주 옅은 스캔라인.
+    클라이언트 폰트 아틀라스 한 장이 256x256 이라 글리프 비트맵은 256 을 넘으면 안 된다
+    (넘으면 '없는 글자' 상자로 그려짐). 화면비 16:9 에 맞춰 256x144."""
+    w, h = 256, 144
     im = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
-    for y in range(0, h, 3):
-        d.line([(0, y), (w, y)], fill=(255, 255, 255, 7))
-    m, L, t = 10, 34, 2
+    for y in range(0, h, 2):
+        d.line([(0, y), (w, y)], fill=(255, 255, 255, 5))
+    m, L = 5, 17
     c = (255, 255, 255, 120)
     for (x0, y0, sx, sy) in [(m, m, 1, 1), (w - 1 - m, m, -1, 1), (m, h - 1 - m, 1, -1), (w - 1 - m, h - 1 - m, -1, -1)]:
-        d.line([(x0, y0), (x0 + sx * L, y0)], fill=c, width=t)
-        d.line([(x0, y0), (x0, y0 + sy * L)], fill=c, width=t)
+        d.line([(x0, y0), (x0 + sx * L, y0)], fill=c)
+        d.line([(x0, y0), (x0, y0 + sy * L)], fill=c)
     # 중앙 십자 눈금 (아주 옅게)
     cx, cy = w // 2, h // 2
-    d.line([(cx - 6, cy), (cx - 2, cy)], fill=(255, 255, 255, 40))
-    d.line([(cx + 2, cy), (cx + 6, cy)], fill=(255, 255, 255, 40))
-    d.line([(cx, cy - 6), (cx, cy - 2)], fill=(255, 255, 255, 40))
-    d.line([(cx, cy + 2), (cx, cy + 6)], fill=(255, 255, 255, 40))
+    d.line([(cx - 3, cy), (cx - 1, cy)], fill=(255, 255, 255, 40))
+    d.line([(cx + 1, cy), (cx + 3, cy)], fill=(255, 255, 255, 40))
+    d.line([(cx, cy - 3), (cx, cy - 1)], fill=(255, 255, 255, 40))
+    d.line([(cx, cy + 1), (cx, cy + 3)], fill=(255, 255, 255, 40))
     im.save(os.path.join(UI, "hudframe.png"))
 
 

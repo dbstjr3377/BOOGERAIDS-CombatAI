@@ -19,7 +19,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.HexFormat;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 
 /**
@@ -35,6 +37,8 @@ public final class ResourcePackService {
     private byte[] data;
     private String sha1;
     private String url;
+    /** 이번 접속에서 현재 팩을 이미 적용한 플레이어. 다시 보내면 클라이언트가 리소스를 통째로 재로딩한다. */
+    private final Set<UUID> loaded = ConcurrentHashMap.newKeySet();
 
     public ResourcePackService(BoogerAIDS plugin) {
         this.plugin = plugin;
@@ -42,6 +46,7 @@ public final class ResourcePackService {
 
     public void start() {
         stop();
+        loaded.clear();
         GameConfig cfg = plugin.gameConfig();
         if (!cfg.packEnabled) return;
 
@@ -100,9 +105,16 @@ public final class ResourcePackService {
         }
     }
 
+    /** 아직 팩을 적용하지 않은 플레이어에게만 전송. */
     public void send(Player p) {
+        send(p, false);
+    }
+
+    /** force = true 면 이미 적용했어도 다시 전송 (/bc pack). */
+    public void send(Player p, boolean force) {
         GameConfig cfg = plugin.gameConfig();
         if (!cfg.packEnabled || url == null) return;
+        if (!force && loaded.contains(p.getUniqueId())) return;
         try {
             ResourcePackInfo info = ResourcePackInfo.resourcePackInfo(PACK_ID, URI.create(url), sha1 == null ? "" : sha1);
             p.sendResourcePacks(ResourcePackRequest.resourcePackRequest()
@@ -114,5 +126,13 @@ public final class ResourcePackService {
         } catch (Exception ex) {
             plugin.getLogger().warning("리소스팩 전송 실패 (" + p.getName() + "): " + ex.getMessage());
         }
+    }
+
+    public boolean isOurs(UUID packId) {
+        return PACK_ID.equals(packId);
+    }
+
+    public void setLoaded(UUID player, boolean value) {
+        if (value) loaded.add(player); else loaded.remove(player);
     }
 }

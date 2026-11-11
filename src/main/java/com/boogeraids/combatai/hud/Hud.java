@@ -336,9 +336,17 @@ public final class Hud {
         stage.text(c);
         stage.setAlignment(TextDisplay.TextAlignment.RIGHT);
         stage.setBackgroundColor(Color.fromARGB(140, 6, 10, 16));
-        double w = Math.max(Fonts.labWidth(chapter), Fonts.labWidth(stageName) * 1.1);
-        anchorText(stage, 0.965, 0.95, 1, 1, w + 4, 2, 0.034, 1.0);
+        double w = Math.max(Fonts.labWidth(chapter), Fonts.labWidth(stageName) * 1.1) + 4;
+        // 이름이 길면(예: 보스 스테이지) 상단 중앙의 타이머/보스 체력바(±0.31) 영역을 침범하지 않도록 글자를 줄인다.
+        double lineFrac = 0.034;
+        double maxFrac = 0.965 - STAGE_BOX_MIN_X;
+        double wFrac = w * lineFrac * 2 / (10 * hs.aspect);   // 박스 폭 / 화면 반폭
+        if (wFrac > maxFrac) lineFrac *= maxFrac / wFrac;
+        anchorText(stage, 0.965, 0.95, 1, 1, w, 2, lineFrac, 1.0);
     }
+
+    /** 우측 상단 스테이지 박스 왼쪽 끝의 한계 (화면 반폭 비율). 보스 체력바 오른쪽 끝 0.31 + 여백. */
+    private static final double STAGE_BOX_MIN_X = 0.36;
 
     /** 능력 슬롯 표시. ability 가 null 이면 숨김. */
     public void setHolder(int slot, Ability ability) {

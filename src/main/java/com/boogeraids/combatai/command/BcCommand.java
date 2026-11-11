@@ -82,7 +82,7 @@ public final class BcCommand implements TabExecutor {
                 return true;
             }
             case "pack" -> {
-                if (s instanceof Player p) plugin.packService().send(p);
+                if (s instanceof Player p) plugin.packService().send(p, true);
                 return true;
             }
             default -> { }

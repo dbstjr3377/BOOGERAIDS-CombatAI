@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -233,6 +234,7 @@ public final class GameManager {
         carryBossHp = -1;
         StageDef first = cfg.chapters.get(chapterIndex).sequence().get(stageIndex);
         Location at = first.spawn.toLocation(world);
+        holdStageChunks(first);
         camera.create(world, at);
         hud = new Hud(camera.cam(), cfg.hud);
         state = GameState.INTRO;
@@ -259,6 +261,7 @@ public final class GameManager {
             }
         }
         camera.destroy();
+        releaseChunks();
         participants.clear();
         queue.clear();
         state = GameState.IDLE;
@@ -348,6 +351,7 @@ public final class GameManager {
         if (firstAttempt) attempt = 1;
         else attempt++;
 
+        holdStageChunks(def);
         frame = new PlaneFrame(world, def.spawn.toVector(), def.facing);
         camera.configure(frame, def.camera);
         Location spawn = frame.at(0, def.spawn.y());
@@ -401,6 +405,55 @@ public final class GameManager {
             fx.sound("block.respawn_anchor.charge", 0.7f, 1.4f);
         }
         hud.flash(0x00E5FF, 0.35, 15);
+    }
+
+    // ------------------------------------------------------------------ chunk tickets
+
+    /** 스폰 기준 평면 방향으로 이만큼(블록)의 청크를 붙잡아 둔다. 내장 레벨 최대 폭(~90)보다 넉넉하게. */
+    private static final int STAGE_REACH = 128;
+    private final Set<Long> heldChunks = new HashSet<>();
+
+    /**
+     * 현재 스테이지 영역(카메라 쪽 포함)의 청크를 로드 상태로 유지.
+     * 플러그인 엔티티는 비영구(setPersistent(false))라, 아무도 없는 곳(예: 바로 보스부터 시작,
+     * 멀리 있는 플레이어가 /bc start)에 스폰되면 청크 언로드와 함께 사라진다 → "카메라 엔티티 소실".
+     */
+    private void holdStageChunks(StageDef d) {
+        PlaneFrame f = new PlaneFrame(world, d.spawn.toVector(), d.facing);
+        Set<Long> want = new HashSet<>();
+        for (int u = -STAGE_REACH; u <= STAGE_REACH; u += 8) {
+            for (int depth = -24; depth <= 16; depth += 8) {
+                Vector v = f.vec(u, 0).add(f.forward.clone().multiply(depth));
+                want.add(chunkKey(v.getBlockX() >> 4, v.getBlockZ() >> 4));
+            }
+        }
+        for (Long k : heldChunks) {
+            if (!want.contains(k)) world.removePluginChunkTicket(chunkX(k), chunkZ(k), plugin);
+        }
+        for (Long k : want) {
+            if (!heldChunks.contains(k)) world.addPluginChunkTicket(chunkX(k), chunkZ(k), plugin);
+        }
+        heldChunks.clear();
+        heldChunks.addAll(want);
+    }
+
+    private void releaseChunks() {
+        if (world != null) {
+            for (Long k : heldChunks) world.removePluginChunkTicket(chunkX(k), chunkZ(k), plugin);
+        }
+        heldChunks.clear();
+    }
+
+    private static long chunkKey(int x, int z) {
+        return (x & 0xFFFFFFFFL) | ((z & 0xFFFFFFFFL) << 32);
+    }
+
+    private static int chunkX(long key) {
+        return (int) key;
+    }
+
+    private static int chunkZ(long key) {
+        return (int) (key >>> 32);
     }
 
     private void cleanupAttempt() {

@@ -20,6 +20,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -51,6 +52,18 @@ public final class GameListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         game().leave(e.getPlayer());
+        plugin.packService().setLoaded(e.getPlayer().getUniqueId(), false);
+    }
+
+    @EventHandler
+    public void onPackStatus(PlayerResourcePackStatusEvent e) {
+        if (!plugin.packService().isOurs(e.getID())) return;
+        switch (e.getStatus()) {
+            case SUCCESSFULLY_LOADED -> plugin.packService().setLoaded(e.getPlayer().getUniqueId(), true);
+            case DECLINED, FAILED_DOWNLOAD, INVALID_URL, FAILED_RELOAD, DISCARDED ->
+                    plugin.packService().setLoaded(e.getPlayer().getUniqueId(), false);
+            default -> { }
+        }
     }
 
     // ------------------------------------------------------------------ input
